@@ -69,7 +69,7 @@ class SessionValues {
     defaults[key] = undefined;
     const loadedValues = await browser.storage.sessions.get(defaults);
     if (!(key in loadedValues))
-        return false;
+      return false;
 
     this.$values[key] = this.$deserializers[key](loadedValues[key]);
     return true;
