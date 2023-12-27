@@ -15,7 +15,7 @@ const gValues = new SessionValues();
 // Any JSONarizable values, Set and Map are available as initial values.
 gValues.defineItem('openingTabs', []);
 gValues.defineItem('anyWindowHasFocus', true);
-gValues.defineItem('lsatCreatedAt', 0);
+gValues.defineItem('lastCreatedAt', 0);
 gValues.defineItem('trackedWindows', new Set());
 
 // It automatically serialize/deserialize the value, if they are simple values.
@@ -35,7 +35,7 @@ const loadedKeys = await gValues.loadAll();
 
 // When you set a new value to the slot, it automatically serialize and save
 // the value to the session storage.
-gValues.lsatCreatedAt = Date.now();
+gValues.lastCreatedAt = Date.now();
 
 // When you directly modify the value, it won't be serialized and saved automatically.
 // Thus you need to call "save" manually for the key.
