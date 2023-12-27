@@ -12,6 +12,19 @@ class SessionValues {
   }
 
   defineItem(key, initial, serializer, deserializer) {
+    if (initial instanceof Set) {
+      if (!serializer)
+        serializer = this.$serializeSet;
+      if (!deserializer)
+        deserializer = this.$deserializeSet;
+    }
+    else if (initial instanceof Map) {
+      if (!serializer)
+        serializer = this.$serializeMap;
+      if (!deserializer)
+        deserializer = this.$deserializeMap;
+    }
+
     this.$values[key] = initial;
     this.$deserializers[key] = deserializer;
     Object.defineProperty(this, key, {
@@ -24,6 +37,22 @@ class SessionValues {
       },
       enumerable: true,
     });
+  }
+
+  $serializeSet(value) {
+    return [...value];
+  }
+
+  $deserializeSet(value) {
+    return new Set(value);
+  }
+
+  $serializeMap(value) {
+    return [...value.entries()];
+  }
+
+  $deserializeMap(value) {
+    return new Map(value);
   }
 
   async load(key) {
