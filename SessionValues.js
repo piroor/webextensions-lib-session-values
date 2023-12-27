@@ -71,7 +71,9 @@ class SessionValues {
     if (!(key in loadedValues))
       return false;
 
-    this.$values[key] = this.$deserializers[key](loadedValues[key]);
+    const value = loadedValues[key];
+    const deserializer = this.$deserializers[key];
+    this.$values[key] = deserializer ? deserializer(value) : value;
     return true;
   }
 
@@ -81,7 +83,8 @@ class SessionValues {
     for (const [key, value] of Object.entries(loadedValues)) {
       if (!(key in this.$values))
         continue;
-      this.$values[key] = this.$deserializers[key](value);
+      const deserializer = this.$deserializers[key];
+      this.$values[key] = deserializer ? deserializer(value) : value;
       loadedKeys.add(key);
     }
     return loadedKeys;
