@@ -33,7 +33,7 @@ class SessionValues {
         this.$values[key] = value;
         const valuesToSave = {};
         valuesToSave[key] = serializer ? serializer(value) : value;
-        browser.storage.sessions.set(valuesToSave);
+        browser.storage.session.set(valuesToSave);
       },
       enumerable: true,
     });
@@ -67,7 +67,7 @@ class SessionValues {
 
     const defaults = {};
     defaults[key] = undefined;
-    const loadedValues = await browser.storage.sessions.get(defaults);
+    const loadedValues = await browser.storage.session.get(defaults);
     if (!(key in loadedValues))
       return false;
 
@@ -76,7 +76,7 @@ class SessionValues {
   }
 
   async loadAll() {
-    const loadedValues = await browser.storage.sessions.get(null);
+    const loadedValues = await browser.storage.session.get(null);
     let loadedKeys = new Set();
     for (const [key, value] of Object.entries(loadedValues)) {
       if (!(key in this.$values))
