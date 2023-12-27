@@ -55,6 +55,12 @@ class SessionValues {
     return new Map(value);
   }
 
+  save(...keys) {
+    for (const key of keys) {
+      this[key] = this[key];
+    }
+  }
+
   async load(key) {
     if (!(key in this.$values))
       return false;
