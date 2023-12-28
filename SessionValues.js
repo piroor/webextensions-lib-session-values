@@ -23,11 +23,11 @@ class SessionValues {
     if (definitions) {
       for (const [key, definition] of Object.entries(definitions)) {
         if (definition instanceof SessionValue)
-          this.defineItem(key, definition.initial, definition.serializer, definition.deserializer);
+          this.$defineItem(key, definition.initial, definition.serializer, definition.deserializer);
         else
-          this.defineItem(key, definition);
+          this.$defineItem(key, definition);
       }
-      this.$$loaded = this.loadAll();
+      this.$$loaded = this.$loadAll();
     }
   }
 
@@ -43,7 +43,7 @@ class SessionValues {
       promisedLoaded;
   }
 
-  defineItem(key, initial, serializer, deserializer) {
+  $defineItem(key, initial, serializer, deserializer) {
     if (initial instanceof Set) {
       if (!serializer)
         serializer = this.$serializeSet;
@@ -105,7 +105,7 @@ class SessionValues {
     this.$resolveLoaded.clear();
   }
 
-  async load(key) {
+  async $load(key) {
     if (!(key in this.$values))
       return false;
 
@@ -123,7 +123,7 @@ class SessionValues {
     return true;
   }
 
-  async loadAll() {
+  async $loadAll() {
     const keysToLoad = Object.fromEntries([...this.$toBeLoadedKeys].map(key => [key, undefined]));
     this.$toBeLoadedKeys.clear();
     const loadedValues = await browser.storage.session.get(keysToLoad);
