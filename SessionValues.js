@@ -33,7 +33,7 @@ class SessionValues {
 
   get $loaded() {
     if (this.$toBeLoadedKeys.size <= 0)
-      return Promise.resolve(true);
+      return Promise.resolve(new Set());
 
     const promisedLoaded = new Promise((resolve, _reject) => {
       this.$resolveLoaded.add(resolve);
@@ -95,12 +95,12 @@ class SessionValues {
     }
   }
 
-  $tryResolve() {
+  $tryResolve(loadedKeys) {
     if (this.$resolveLoaded.size <= 0 ||
         this.$toBeLoadedKeys.size > 0)
       return;
     for (const resolver of this.$resolveLoaded) {
-      resolver(true);
+      resolver(loadedKeys);
     }
     this.$resolveLoaded.clear();
   }
@@ -119,7 +119,7 @@ class SessionValues {
     const value = loadedValues[key];
     const deserializer = this.$deserializers[key];
     this.$values[key] = deserializer ? deserializer(value) : value;
-    this.$tryResolve();
+    this.$tryResolve(new Set([key]));
     return true;
   }
 
@@ -135,7 +135,7 @@ class SessionValues {
       this.$values[key] = deserializer ? deserializer(value) : value;
       loadedKeys.add(key);
     }
-    this.$tryResolve();
+    this.$tryResolve(loadedKeys);
     return loadedKeys;
   }
 }

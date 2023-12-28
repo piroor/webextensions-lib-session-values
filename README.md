@@ -36,6 +36,20 @@ const gValues = new SessionValues({
 browser.tabs.onCreated.addListener(async tab => {
   await gValues.$loaded;
   // Operations based on loaded session values are placed here.
+  ...
+});
+
+window.addEventListener('DOMContentLoaded', async () => {
+  // The promise is resolved with a Set containing keys loaded from the session storage.
+  const loadedKeys = await gValues.$loaded;
+
+  // If there is any loaded key, it means that you are now resumed, so you may skip
+  // some initialization processes.
+  if (loadedKeys.size > 0)
+    return;
+
+  // Otherwise you need to do regular initialization processes.
+  ...
 });
 
 
