@@ -18,7 +18,7 @@ class SessionValues {
     this.$values = {};
     this.$deserializers = {};
     this.$toBeLoadedKeys = new Set();
-    this.$resolveLoaded = new set();
+    this.$resolveLoaded = new Set();
 
     if (definitions) {
       for (const [key, definition] of Object.entries(definitions)) {
