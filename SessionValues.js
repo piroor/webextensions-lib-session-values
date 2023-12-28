@@ -27,13 +27,13 @@ class SessionValues {
         else
           this.defineItem(key, definition);
       }
-      this.loadAll();
+      this.$$loaded = this.loadAll();
     }
   }
 
   get $loaded() {
     if (this.$toBeLoadedKeys.size <= 0)
-      return Promise.resolve(new Set());
+      return this.$$loaded || Promise.resolve(new Set());
 
     const promisedLoaded = new Promise((resolve, _reject) => {
       this.$resolveLoaded.add(resolve);
