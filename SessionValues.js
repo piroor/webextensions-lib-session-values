@@ -47,7 +47,7 @@ class SessionValues {
 
   $defineItem(key, initial, serializer, deserializer) {
     if (Array.isArray(initial) ||
-        (initial && typeof initial == 'object') {
+        (initial && typeof initial == 'object')) {
       this.$mayBeDirtyKeys.add(key);
     }
     else if (initial instanceof Set) {
