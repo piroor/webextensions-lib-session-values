@@ -5,12 +5,30 @@
 */
 'use strict';
 
+class SessionValue {
+  constructor(initial, serializer, deserializer) {
+    this.initial      = initial;
+    this.serializer   = serializer;
+    this.deserializer = deserializer;
+  }
+}
+
 class SessionValues {
-  constructor() {
+  constructor(definitions = {}) {
     this.$values = {};
     this.$deserializers = {};
     this.$toBeLoadedKeys = new Set();
     this.$resolveLoaded = new set();
+
+    if (definitions) {
+      for (const [key, definition] of Object.entries(definitions)) {
+        if (definition instanceof SessionValue)
+          this.defineItem(key, definition.initial, definition.serializer, definition.deserializer);
+        else
+          this.defineItem(key, definition);
+      }
+      this.loadAll();
+    }
   }
 
   get $loaded() {
