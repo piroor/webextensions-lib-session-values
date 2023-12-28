@@ -58,11 +58,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 gValues.lastCreatedAt = Date.now();
 
 // When you directly modify the value, it won't be serialized and saved automatically.
-// Thus you need to call "save" manually for the key.
+// Thus you need to call "save" manually.
 gValues.trackedWindows.add(window.id);
-gValues.save('trackedWindows');
+gValues.save();
 
-// The method "save" accepts multiple keys like as:
+// Calling "save" without arguments will save all possible dirty values:
+// Array, Object, Set or Map which might be modified directly.
+// If you hope only modified values are saved, specify keys to save like as:
 gValues.openingTabs.add(tab.id);
 gValues.trackedWindows.add(window.id);
 gValues.save('openingTabs', 'trackedWindows');

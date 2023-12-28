@@ -19,6 +19,8 @@ class SessionValues {
     this.$deserializers = {};
     this.$toBeLoadedKeys = new Set();
     this.$resolveLoaded = new Set();
+    this.$mayBeDirtyKeys = new Set();
+    this.$touchedMayBeDirtyKeys = new Set();
 
     if (definitions) {
       for (const [key, definition] of Object.entries(definitions)) {
@@ -44,23 +46,33 @@ class SessionValues {
   }
 
   $defineItem(key, initial, serializer, deserializer) {
-    if (initial instanceof Set) {
+    if (Array.isArray(initial) ||
+        (initial && typeof initial == 'object') {
+      this.$mayBeDirtyKeys.add(key);
+    }
+    else if (initial instanceof Set) {
       if (!serializer)
         serializer = this.$serializeSet;
       if (!deserializer)
         deserializer = this.$deserializeSet;
+      this.$mayBeDirtyKeys.add(key);
     }
     else if (initial instanceof Map) {
       if (!serializer)
         serializer = this.$serializeMap;
       if (!deserializer)
         deserializer = this.$deserializeMap;
+      this.$mayBeDirtyKeys.add(key);
     }
 
     this.$values[key] = initial;
     this.$deserializers[key] = deserializer;
     Object.defineProperty(this, key, {
-      get: () => this.$values[key],
+      get: () => {
+        if (this.$mayBeDirtyKeys.has(key))
+          this.$touchedMayBeDirtyKeys.add(key);
+        return this.$values[key];
+      },
       set: (value) => {
         this.$values[key] = value;
         const valuesToSave = {};
@@ -90,6 +102,8 @@ class SessionValues {
   }
 
   save(...keys) {
+    if (keys.length == 0)
+      keys = this.$touchedMayBeDirtyKeys;
     for (const key of keys) {
       this[key] = this[key];
     }
