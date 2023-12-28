@@ -27,7 +27,16 @@ gValues.defineItem('initialTabIdsInWindow', new Map(), // the values are Set.
   // deserializer
   value => new Map(value.map(([key, value]) => [key, new Set(value)])));
 
-// You need to load values from the session storage.
+// The instance has a property "$loaded" which is a promise resolved when
+// all values are loaded by the "loadAll()".
+browser.tabs.onCreated.addListener(async tab => {
+  await gValues.$loaded;
+  // Operations based on loaded session values are placed here.
+});
+
+// You need to load values from the session storage manually.
+// The method should be called at the intiialization process or the bottom of
+// the script.
 const loadedKeys = await gValues.loadAll();
 // The returned value is a set of loaded keys.
 // The size will be 0 if it is the startup.

@@ -9,6 +9,20 @@ class SessionValues {
   constructor() {
     this.$values = {};
     this.$deserializers = {};
+    this.$toBeLoadedKeys = new Set();
+    this.$resolveLoaded = new set();
+  }
+
+  get $loaded() {
+    if (this.$toBeLoadedKeys.size <= 0)
+      return Promise.resolve(true);
+
+    const promisedLoaded = new Promise((resolve, _reject) => {
+      this.$resolveLoaded.add(resolve);
+    });
+    return this.$$loaded = this.$$loaded ?
+      this.$$loaded.then(() => promisedLoaded) :
+      promisedLoaded;
   }
 
   defineItem(key, initial, serializer, deserializer) {
@@ -37,6 +51,8 @@ class SessionValues {
       },
       enumerable: true,
     });
+
+    this.$toBeLoadedKeys.add(key);
   }
 
   $serializeSet(value) {
@@ -61,6 +77,16 @@ class SessionValues {
     }
   }
 
+  $tryResolve() {
+    if (this.$resolveLoaded.size <= 0 ||
+        this.$toBeLoadedKeys.size > 0)
+      return;
+    for (const resolver of this.$resolveLoaded) {
+      resolver(true);
+    }
+    this.$resolveLoaded.clear();
+  }
+
   async load(key) {
     if (!(key in this.$values))
       return false;
@@ -68,25 +94,30 @@ class SessionValues {
     const defaults = {};
     defaults[key] = undefined;
     const loadedValues = await browser.storage.session.get(defaults);
+    this.$toBeLoadedKeys.delete(key);
     if (!(key in loadedValues))
       return false;
 
     const value = loadedValues[key];
     const deserializer = this.$deserializers[key];
     this.$values[key] = deserializer ? deserializer(value) : value;
+    this.$tryResolve();
     return true;
   }
 
   async loadAll() {
-    const loadedValues = await browser.storage.session.get(null);
+    const keysToLoad = Object.fromEntries([...this.$toBeLoadedKeys].map(key => [key, undefined]));
+    this.$toBeLoadedKeys.clear();
+    const loadedValues = await browser.storage.session.get(keysToLoad);
     let loadedKeys = new Set();
     for (const [key, value] of Object.entries(loadedValues)) {
-      if (!(key in this.$values))
+      if (value === undefined)
         continue;
       const deserializer = this.$deserializers[key];
       this.$values[key] = deserializer ? deserializer(value) : value;
       loadedKeys.add(key);
     }
+    this.$tryResolve();
     return loadedKeys;
   }
 }
